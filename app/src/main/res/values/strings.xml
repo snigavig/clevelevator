@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Clevelevator</string>
+    <string name="app_description_short">Clevelevator - do more when you can</string>
+    <string name="difficulty_label">Difficulty:</string>
+    <string name="detection_switch">Turn detection on/off</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="difficulty_harder">Harder</string>
+    <string name="difficulty_nightmare">Nightmare!</string>
+    <string name="difficulty_hardest">∞</string>
+    <string name="levelup_direction"><![CDATA[>]]></string>
+    <string name="one_more_button_label">One more</string>
+    <string name="level_up_message">Level up! Congrats!!</string>
+    <string name="wrong_answer_message">Wrong answer.</string>
+    <string name="correct_answer_message">Correct! Good job!!</string>
+</resources>

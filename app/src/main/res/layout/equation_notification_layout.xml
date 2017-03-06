@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/player_notification_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:minHeight="96dp"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/appTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/app_description_short"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/colorPrimaryText" />
+
+    <TextView
+        android:id="@+id/equationTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorPrimaryText"
+        tools:text="...equation..." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/firstAnswerImageButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="3dp"
+                android:layout_gravity="center"
+                android:background="?android:selectableItemBackground"
+                app:srcCompat="@drawable/answer_button_background" />
+
+            <TextView
+                android:id="@+id/firstAnswerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textStyle="bold"
+                tools:text="1234" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/secondAnswerImageButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:padding="3dp"
+                android:background="?android:selectableItemBackground"
+                app:srcCompat="@drawable/answer_button_background" />
+
+            <TextView
+                android:id="@+id/secondAnswerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textStyle="bold"
+                tools:text="-12345" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/thirdAnswerImageButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:padding="3dp"
+                android:background="?android:selectableItemBackground"
+                app:srcCompat="@drawable/answer_button_background" />
+
+            <TextView
+                android:id="@+id/thirdAnswerTextView"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textStyle="bold"
+                tools:text="123" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>
