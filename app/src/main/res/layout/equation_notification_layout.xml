@@ -33,6 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <FrameLayout
@@ -44,9 +45,9 @@
                 android:id="@+id/firstAnswerImageButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:padding="3dp"
                 android:layout_gravity="center"
                 android:background="?android:selectableItemBackground"
+                android:padding="3dp"
                 app:srcCompat="@drawable/answer_button_background" />
 
             <TextView
@@ -69,8 +70,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:padding="3dp"
                 android:background="?android:selectableItemBackground"
+                android:padding="3dp"
                 app:srcCompat="@drawable/answer_button_background" />
 
             <TextView
@@ -93,8 +94,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:padding="3dp"
                 android:background="?android:selectableItemBackground"
+                android:padding="3dp"
                 app:srcCompat="@drawable/answer_button_background" />
 
             <TextView

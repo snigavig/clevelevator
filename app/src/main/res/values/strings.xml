@@ -9,9 +9,24 @@
     <string name="difficulty_harder">Harder</string>
     <string name="difficulty_nightmare">Nightmare!</string>
     <string name="difficulty_hardest">∞</string>
-    <string name="levelup_direction"><![CDATA[>]]></string>
+    <string name="difficulty_none">None</string>
     <string name="one_more_button_label">One more</string>
     <string name="level_up_message">Level up! Congrats!!</string>
     <string name="wrong_answer_message">Wrong answer.</string>
     <string name="correct_answer_message">Correct! Good job!!</string>
+
+    <!--No translation needed-->
+    <string-array name="difficulty" translatable="false">
+        <item>@string/difficulty_none</item>
+        <item>@string/difficulty_easy</item>
+        <item>@string/difficulty_medium</item>
+        <item>@string/difficulty_hard</item>
+        <item>@string/difficulty_harder</item>
+        <item>@string/difficulty_nightmare</item>
+    </string-array>
+    <string name="level_direction_start" translatable="false"><![CDATA[>]]></string>
+    <string name="level_direction_middle" translatable="false"><![CDATA[>]]> <![CDATA[>]]></string>
+    <string name="level_direction_end" translatable="false"><![CDATA[>]]> <![CDATA[>]]> <![CDATA[>]]></string>
+    <string name="force_difficulty_label">Force difficulty</string>
+    <string name="no_progress_for_difficulty_label">No more progress on this difficulty</string>
 </resources>

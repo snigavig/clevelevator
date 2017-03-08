@@ -6,14 +6,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.IntDef;
-import android.util.Log;
-
-import com.goodcodeforfun.clevelevator.BuildConfig;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,12 +29,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
     public static final int SENSITIVITY_LIGHT = 11;
     public static final int SENSITIVITY_MEDIUM = 13;
     public static final int SENSITIVITY_HARD = 15;
-    public static final int SENSITIVITY_HARDER = 18;
-
-    @IntDef({ACCELERATING_X_POSITIVE, ACCELERATING_X_NEGATIVE, ACCELERATING_Y_NEGATIVE, ACCELERATING_Y_POSITIVE, ACCELERATING_Z_NEGATIVE, ACCELERATING_Z_POSITIVE, ACCELERATING_DEFAULT})
-    @Retention(RetentionPolicy.SOURCE)
-    private @interface AccelerationDirection { }
-
+    public static final int SENSITIVITY_HARDER = 19;
     private static final int ACCELERATING_X_POSITIVE = 0;
     private static final int ACCELERATING_X_NEGATIVE = 1;
     private static final int ACCELERATING_Y_NEGATIVE = 2;
@@ -46,34 +37,16 @@ public class ShakeAndElevationDetector implements SensorEventListener {
     private static final int ACCELERATING_Z_NEGATIVE = 4;
     private static final int ACCELERATING_Z_POSITIVE = 5;
     private static final int ACCELERATING_DEFAULT = -1;
-
     private static final int DEFAULT_ACCELERATION_THRESHOLD = SENSITIVITY_HARDER;
     private static final int DEFAULT_ACCELERATION_ELEVATION_THRESHOLD = SENSITIVITY_ELEVATOR;
-
+    private final SampleQueue queue = new SampleQueue();
+    private final Listener listener;
     /**
      * When the magnitude of total acceleration exceeds this
      * value, the phone is accelerating.
      */
     private int accelerationThreshold = DEFAULT_ACCELERATION_THRESHOLD;
     private int accelerationElevationThreshold = DEFAULT_ACCELERATION_ELEVATION_THRESHOLD;
-
-    /**
-     * Listens for shakes.
-     */
-    public interface Listener {
-        /**
-         * Called on the main thread when the device is shaken.
-         */
-        void hearShake();
-        /**
-         * Called on the main thread when the device is continuously elevating.
-         */
-        void hearElevation();
-    }
-
-    private final SampleQueue queue = new SampleQueue();
-    private final Listener listener;
-
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -119,7 +92,6 @@ public class ShakeAndElevationDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.e("YOOOO ", Arrays.toString(event.values));
         boolean accelerating = isAccelerating(event);
         int highestAccelerationAxis = getHighestAccelerationAxis(event);
         long timestamp = event.timestamp;
@@ -209,6 +181,30 @@ public class ShakeAndElevationDetector implements SensorEventListener {
      */
     public void setElevationSensitivity(int accelerationElevationThreshold) {
         this.accelerationElevationThreshold = accelerationElevationThreshold;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @IntDef({ACCELERATING_X_POSITIVE, ACCELERATING_X_NEGATIVE, ACCELERATING_Y_NEGATIVE, ACCELERATING_Y_POSITIVE, ACCELERATING_Z_NEGATIVE, ACCELERATING_Z_POSITIVE, ACCELERATING_DEFAULT})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface AccelerationDirection {
+    }
+
+    /**
+     * Listens for shakes.
+     */
+    public interface Listener {
+        /**
+         * Called on the main thread when the device is shaken.
+         */
+        void hearShake();
+
+        /**
+         * Called on the main thread when the device is continuously elevating.
+         */
+        void hearElevation();
     }
 
     /**
@@ -437,9 +433,5 @@ public class ShakeAndElevationDetector implements SensorEventListener {
             sample.next = head;
             head = sample;
         }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }

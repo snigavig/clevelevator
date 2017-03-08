@@ -3,21 +3,22 @@ package com.goodcodeforfun.clevelevator;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
-import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class EquationGenerationUtils {
-    public static final int DIFFICULTY_EASY = 0;
-    public static final int DIFFICULTY_MEDIUM = 1;
-    public static final int DIFFICULTY_HARD = 2;
-    public static final int DIFFICULTY_HARDER = 3;
-    public static final int DIFFICULTY_NIGHTMARE = 4;
-    public static final int DIFFICULTY_HARDEST = 5;
+    public static final int FORCED_DIFFICULTY_NONE = 0;
+    public static final int DIFFICULTY_EASY = 1;
+    public static final int DIFFICULTY_MEDIUM = 2;
+    public static final int DIFFICULTY_HARD = 3;
+    public static final int DIFFICULTY_HARDER = 4;
+    public static final int DIFFICULTY_NIGHTMARE = 5;
+    public static final int DIFFICULTY_HARDEST = 6;
     private static final int DIFFICULTY_EASY_COEFFICIENT = 100000000;
     private static final int DIFFICULTY_MEDIUM_COEFFICIENT = 100000000;
     private static final int DIFFICULTY_HARD_COEFFICIENT = 10000000;
@@ -35,8 +36,14 @@ public class EquationGenerationUtils {
     private static final String OPERATION_MULTIPLICATION = "*";
     private static final String OPERATION_DIVISION = "/";
     private static final Random mRandom = new Random();
+    private static final int INVERTED_WRONG_RESULT = 0;
+    private static final int CLOSE_BY_LENGTH_WRONG_RESULT = 1;
+    private static final int RANDOM_WRONG_RESULT = 2;
+    private static final int RANDOM_MORE_THAN_WRONG_RESULT = 3;
+    private static final int RANDOM_LESS_THAN_WRONG_RESULT = 4;
+    private static final int RANDOM_DIVISOR_WRONG_RESULT = 5;
 
-    static Equation generateEquation(@Difficulty int difficulty) {
+    static Equation generateEquation(int difficulty) {
         return new Equation(difficulty);
     }
 
@@ -89,17 +96,122 @@ public class EquationGenerationUtils {
         return randomOperation;
     }
 
-    private static int getIntResult(@Difficulty int difficulty) {
+    private static int getRandomSingleMultiplier() {
+        return mRandom.nextInt(10);
+    }
+
+    private static int getRandomMoreThanWrongResult(int result, @Difficulty int difficulty) {
+        return getRandomNumberLessThen(result, difficulty);
+    }
+
+    private static int getRandomLessThanWrongResult(int result, @Difficulty int difficulty) {
+        return getRandomNumberLessThen(result, difficulty);
+    }
+
+    private static int getRandomDivisorWrongResult(int result, @Difficulty int difficulty) {
+        return getRandomDivisor(getNumberDivisors(result), difficulty);
+    }
+
+    private static int getRandomWrongResult(@Difficulty int difficulty) {
+        return getRandomIntResult(difficulty);
+    }
+
+    private static int getRandomWrongResultCloseByLength(int result) {
+        int wrongResult = 1;
+        int resultLength = String.valueOf(result).length();
+        for (int i = 1; i < resultLength; i++) {
+            wrongResult *= 10;
+        }
+        wrongResult *= getRandomSingleMultiplier();
+        boolean isPositive = mRandom.nextBoolean();
+        if (isPositive) {
+            wrongResult += result;
+        } else {
+            wrongResult -= result;
+        }
+
+        return wrongResult;
+    }
+
+    private static int getInvertedWrongResult(int result) {
+        //we cannot inverse zero
+        if (result == 0) {
+            boolean isPositive = mRandom.nextBoolean();
+            if (isPositive) {
+                result++;
+            } else {
+                result--;
+            }
+        }
+        if (result > 0) {
+            result = 0 - result;
+        } else {
+            result = Math.abs(result);
+        }
+        return result;
+    }
+
+    private static int getRandomWrongIntResultByMethod(int result, @Difficulty int difficulty, int method) {
+        int wrongResult;
+        switch (method) {
+            case RANDOM_DIVISOR_WRONG_RESULT:
+                wrongResult = getRandomDivisorWrongResult(result, difficulty);
+                break;
+            case CLOSE_BY_LENGTH_WRONG_RESULT:
+                wrongResult = getRandomWrongResultCloseByLength(result);
+                break;
+            case RANDOM_WRONG_RESULT:
+                wrongResult = getRandomWrongResult(difficulty);
+                break;
+            case RANDOM_MORE_THAN_WRONG_RESULT:
+                wrongResult = getRandomMoreThanWrongResult(result, difficulty);
+                break;
+            case RANDOM_LESS_THAN_WRONG_RESULT:
+                wrongResult = getRandomLessThanWrongResult(result, difficulty);
+                break;
+            case INVERTED_WRONG_RESULT:
+            default:
+                wrongResult = getInvertedWrongResult(result);
+                break;
+        }
+        return wrongResult;
+    }
+
+    private static int getRandomWrongResultMethod(List<Integer> wrongResultMethods) {
+        int min = 0;
+        int max = wrongResultMethods.size() - 1;
+        int randomMethodIndex = mRandom.nextInt(max + 1 - min) + min;
+        return wrongResultMethods.get(randomMethodIndex);
+    }
+
+    private static int[] getRandomWrongIntResults(int result, @Difficulty int difficulty) {
+        int[] wrongResults = new int[2];
+        List<Integer> wrongResultMethods = new ArrayList<>(
+                Arrays.asList(INVERTED_WRONG_RESULT,
+                        CLOSE_BY_LENGTH_WRONG_RESULT,
+                        RANDOM_WRONG_RESULT,
+                        RANDOM_MORE_THAN_WRONG_RESULT,
+                        RANDOM_LESS_THAN_WRONG_RESULT,
+                        RANDOM_DIVISOR_WRONG_RESULT)
+        );
+
+        wrongResults[0] = getRandomWrongIntResultByMethod(result, difficulty, getRandomWrongResultMethod(wrongResultMethods));
+        wrongResults[1] = getRandomWrongIntResultByMethod(result, difficulty, getRandomWrongResultMethod(wrongResultMethods));
+        while (wrongResults[0] == result) {
+            wrongResults[0] = getRandomWrongIntResultByMethod(result, difficulty, getRandomWrongResultMethod(wrongResultMethods));
+        }
+        while (wrongResults[1] == result || wrongResults[0] == wrongResults[1]) {
+            wrongResults[1] = getRandomWrongIntResultByMethod(result, difficulty, getRandomWrongResultMethod(wrongResultMethods));
+        }
+        return wrongResults;
+    }
+
+    private static int getRandomIntResult(@Difficulty int difficulty) {
         int min = minInteger;
         int max = maxInteger;
 
         min = applyCoefficient(min, difficulty);
         max = applyCoefficient(max, difficulty);
-
-        //zero is not accepted
-        if (min == 0) {
-            min++;
-        }
 
         return mRandom.nextInt(max + 1 - min) + min;
     }
@@ -177,20 +289,20 @@ public class EquationGenerationUtils {
             case DIFFICULTY_NIGHTMARE:
                 break;
             case DIFFICULTY_HARDER:
-                if (max > 3) {
-                    max = 3;
+                if (max > 4) {
+                    max = 4;
                 }
                 break;
             case DIFFICULTY_HARD:
             case DIFFICULTY_MEDIUM:
-                if (max > 2) {
-                    max = 2;
+                if (max > 3) {
+                    max = 3;
                 }
                 break;
             case DIFFICULTY_EASY:
             default:
-                if (max > 1) {
-                    max = 1;
+                if (max > 2) {
+                    max = 2;
                 }
                 break;
         }
@@ -211,33 +323,20 @@ public class EquationGenerationUtils {
     static class Equation {
         private final Node root;
         private final int difficulty;
-
-        int getResult() {
-            return result;
-        }
-
-        int getFirstWrongResult() {
-            return firstWrongResult;
-        }
-
-        int getSecondWrongResult() {
-            return secondWrongResult;
-        }
-
         private final int result;
         private final int firstWrongResult;
         private final int secondWrongResult;
         private final List<Node> leafs = new ArrayList<>();
-
         private Equation(@Difficulty int difficulty) {
-            this.result = getIntResult(difficulty);
+            this.result = getRandomIntResult(difficulty);
             this.difficulty = difficulty;
             Expression rootExpression = generateExpression(this.result, this.difficulty);
-            this.firstWrongResult = 42;
-            this.secondWrongResult = 43;
-            this.root = new Node(rootExpression.getOperation(), Node.TYPE_OPERATION);
-            this.root.children.add(new Node(rootExpression.getFirstOperandAsString(), Node.TYPE_OPERAND));
-            this.root.children.add(new Node(rootExpression.getSecondOperandAsString(), Node.TYPE_OPERAND));
+            int[] wrongResults = getRandomWrongIntResults(this.result, difficulty);
+            this.firstWrongResult = wrongResults[0];
+            this.secondWrongResult = wrongResults[1];
+            this.root = new Node(rootExpression.getOperation(), Node.TYPE_OPERATION, null);
+            this.root.children.add(new Node(rootExpression.getFirstOperandAsString(), Node.TYPE_OPERAND, this.root));
+            this.root.children.add(new Node(rootExpression.getSecondOperandAsString(), Node.TYPE_OPERAND, this.root));
             this.leafs.add(this.root.children.get(0));
             this.leafs.add(this.root.children.get(1));
             expandEquationToMeetDifficulty();
@@ -277,9 +376,33 @@ public class EquationGenerationUtils {
                         secondOperandString = String.valueOf(secondOperand);
                     }
                 }
-                node.setData("(" + firstOperandString + " " + operation + " " + secondOperandString + ")");
+                StringBuilder floppedData = new StringBuilder();
+                floppedData.append(firstOperandString);
+                floppedData.append(" ");
+                floppedData.append(operation);
+                floppedData.append(" ");
+                floppedData.append(secondOperandString);
+                if (node.getParent() != null) {
+                    floppedData.append(")");
+                    floppedData.reverse();
+                    floppedData.append("(");
+                    floppedData.reverse();
+                }
+                node.setData(floppedData.toString());
                 node.setChildren(new ArrayList<Node>());
             }
+        }
+
+        int getResult() {
+            return result;
+        }
+
+        int getFirstWrongResult() {
+            return firstWrongResult;
+        }
+
+        int getSecondWrongResult() {
+            return secondWrongResult;
         }
 
         private void expandEquationToMeetDifficulty() {
@@ -316,8 +439,8 @@ public class EquationGenerationUtils {
             node.setData(expression.getOperation());
             node.setType(Node.TYPE_OPERATION);
             List<Node> children = new ArrayList<>();
-            children.add(new Node(expression.getFirstOperandAsString(), Node.TYPE_OPERAND));
-            children.add(new Node(expression.getSecondOperandAsString(), Node.TYPE_OPERAND));
+            children.add(new Node(expression.getFirstOperandAsString(), Node.TYPE_OPERAND, node));
+            children.add(new Node(expression.getSecondOperandAsString(), Node.TYPE_OPERAND, node));
             leafs.add(children.get(0));
             leafs.add(children.get(1));
             node.setChildren(children);
@@ -352,10 +475,12 @@ public class EquationGenerationUtils {
             private
             @NodeType
             int type;
+            private Node parent;
 
-            private Node(String data, int type) {
+            private Node(String data, int type, @Nullable Node parent) {
                 this.data = data;
                 this.type = type;
+                this.parent = parent;
             }
 
             void setType(@NodeType int type) {
@@ -387,6 +512,14 @@ public class EquationGenerationUtils {
 
             private void setChildren(List<Node> children) {
                 this.children = children;
+            }
+
+            public Node getParent() {
+                return parent;
+            }
+
+            public void setParent(Node parent) {
+                this.parent = parent;
             }
 
             @IntDef({TYPE_OPERATION, TYPE_OPERAND})
