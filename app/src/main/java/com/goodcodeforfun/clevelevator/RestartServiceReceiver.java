@@ -9,16 +9,14 @@ import android.util.Log;
  * Created by snigavig on 03.03.17.
  */
 
-public class RestartServiceReceiver extends BroadcastReceiver
-{
+public class RestartServiceReceiver extends BroadcastReceiver {
 
     private static final String TAG = "RestartServiceReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "onReceive");
-        context.startService(new Intent(context.getApplicationContext(), MotionDetectionService.class));
-
+        MotionDetectionService.startMotionDetection(context.getApplicationContext());
     }
 
 }

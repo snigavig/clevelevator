@@ -20,7 +20,7 @@ import static com.goodcodeforfun.clevelevator.NotificationStateReceiver.SET_NOTI
 import static com.goodcodeforfun.clevelevator.NotificationStateReceiver.SET_NOTIFICATION_IS_SHOWING_ACTION;
 
 public class NotificationService extends IntentService {
-    public static final int NOTIFICATION_ID = 10101;
+    private static final int NOTIFICATION_ID = 10101;
     private static final String ACTION_SHOW_EQUATION = "com.goodcodeforfun.clevelevator.action.SHOW_EQUATION";
     private static final String ACTION_SHOW_ANSWER_CORRECT = "com.goodcodeforfun.clevelevator.action.SHOW_ANSWER_CORRECT";
     private static final String ACTION_SHOW_ANSWER_WRONG = "com.goodcodeforfun.clevelevator.action.SHOW_ANSWER_WRONG";

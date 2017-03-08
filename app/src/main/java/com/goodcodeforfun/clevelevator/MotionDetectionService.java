@@ -1,19 +1,35 @@
 package com.goodcodeforfun.clevelevator;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.squareup.seismic.ShakeAndElevationDetector;
 
 public class MotionDetectionService extends Service implements ShakeAndElevationDetector.Listener {
     static final String SHAKE_DETECTED_BROADCAST_ACTION = "ShakeDetected";
     static final String ELEVATION_DETECTED_BROADCAST_ACTION = "ElevationDetected";
+    private static final String START_MOTION_DETECTION_SERVICE_ACTION = "StartService";
     private static final String RESTART_MOTION_DETECTION_SERVICE_ACTION = "RestartService";
-    ShakeAndElevationDetector mShakeAndElevationDetector;
+    private static final String STOP_MOTION_DETECTION_SERVICE_ACTION = "StopService";
+    private ShakeAndElevationDetector mShakeAndElevationDetector;
+
     public MotionDetectionService() {
+    }
+
+    public static void startMotionDetection(Context context) {
+        Intent intent = new Intent(context, MotionDetectionService.class);
+        intent.setAction(START_MOTION_DETECTION_SERVICE_ACTION);
+        context.startService(intent);
+    }
+
+    public static void stopMotionDetection(Context context) {
+        Intent intent = new Intent(context, MotionDetectionService.class);
+        intent.setAction(STOP_MOTION_DETECTION_SERVICE_ACTION);
+        context.startService(intent);
     }
 
     @Override
@@ -25,8 +41,18 @@ public class MotionDetectionService extends Service implements ShakeAndElevation
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mShakeAndElevationDetector = new ShakeAndElevationDetector(this);
-        mShakeAndElevationDetector.start(sensorManager);
+        Log.e("booo", "starting motion detection service");
+        if (mShakeAndElevationDetector == null) {
+            Log.e("booo", "detector is null, creating");
+            mShakeAndElevationDetector = new ShakeAndElevationDetector(this);
+        }
+        if (START_MOTION_DETECTION_SERVICE_ACTION.equals(intent.getAction())) {
+            Log.e("booo", "i should start");
+            mShakeAndElevationDetector.start(sensorManager);
+        } else {
+            Log.e("booo", "i should stop");
+            mShakeAndElevationDetector.stop();
+        }
         return START_STICKY;
     }
 

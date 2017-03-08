@@ -327,6 +327,7 @@ public class EquationGenerationUtils {
         private final int firstWrongResult;
         private final int secondWrongResult;
         private final List<Node> leafs = new ArrayList<>();
+
         private Equation(@Difficulty int difficulty) {
             this.result = getRandomIntResult(difficulty);
             this.difficulty = difficulty;
@@ -470,12 +471,12 @@ public class EquationGenerationUtils {
         private static class Node {
             private static final int TYPE_OPERATION = 0;
             private static final int TYPE_OPERAND = 1;
+            private final Node parent;
             private List<Node> children = new ArrayList<>();
             private String data;
             private
             @NodeType
             int type;
-            private Node parent;
 
             private Node(String data, int type, @Nullable Node parent) {
                 this.data = data;
@@ -516,10 +517,6 @@ public class EquationGenerationUtils {
 
             public Node getParent() {
                 return parent;
-            }
-
-            public void setParent(Node parent) {
-                this.parent = parent;
             }
 
             @IntDef({TYPE_OPERATION, TYPE_OPERAND})

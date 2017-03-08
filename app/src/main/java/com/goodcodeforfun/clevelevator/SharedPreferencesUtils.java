@@ -19,9 +19,10 @@ import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_DEFAULT_COR
 
 public class SharedPreferencesUtils {
     public static final String DIFFICULTY = "DIFFICULTY_KEY";
-    public static final String FORCED_DIFFICULTY = "FORCED_DIFFICULTY_KEY";
     public static final String COMPLETED_TASK_COUNT = "COMPLETED_TASK_COUNT_KEY";
-    public static final String IS_SHOWING_TASK = "IS_SHOWING_TASK_KEY";
+    private static final String FORCED_DIFFICULTY = "FORCED_DIFFICULTY_KEY";
+    private static final String IS_SHOWING_TASK = "IS_SHOWING_TASK_KEY";
+    private static final String IS_DETECTION_ON = "IS_DETECTION_ON_KEY";
 
     private static SharedPreferencesUtils mInstance;
     private final SharedPreferences mSharedPreferences;
@@ -131,6 +132,16 @@ public class SharedPreferencesUtils {
     public synchronized void setIsShowingTask(boolean value) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_SHOWING_TASK, value);
+        editor.apply();
+    }
+
+    public synchronized boolean isDetectionOn() {
+        return mSharedPreferences.getBoolean(IS_DETECTION_ON, true);
+    }
+
+    public synchronized void setIsDetectionOn(boolean value) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(IS_DETECTION_ON, value);
         editor.apply();
     }
 }

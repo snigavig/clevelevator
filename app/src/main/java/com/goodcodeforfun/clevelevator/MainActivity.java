@@ -1,6 +1,5 @@
 package com.goodcodeforfun.clevelevator;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,9 +8,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,13 +35,14 @@ import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.DIFFICULTY;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    SharedPreferencesUtils mSharedPreferencesUtils;
+    private SharedPreferencesUtils mSharedPreferencesUtils;
 
     private TextView currentDifficulty;
     private TextView nextDifficulty;
     private TextView levelProgressText;
     private ProgressBar levelProgress;
     private Spinner difficultySpinner;
+    private Switch detectionSwitch;
     private LinearLayout currentDifficultyContainer;
     private LinearLayout currentDifficultyNoProgressContainer;
     private LinearLayout forceDifficultyContainer;
@@ -54,12 +56,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         levelProgressText = (TextView) findViewById(R.id.levelProgressTextView);
         levelProgress = (ProgressBar) findViewById(R.id.levelProgressBar);
         difficultySpinner = (Spinner) findViewById(R.id.forceDifficultySpinner);
+        detectionSwitch = (Switch) findViewById(R.id.detectionSwitch);
         currentDifficultyContainer = (LinearLayout) findViewById(R.id.currentDifficultyContainer);
         currentDifficultyNoProgressContainer = (LinearLayout) findViewById(R.id.currentDifficultyNoProgressContainer);
         forceDifficultyContainer = (LinearLayout) findViewById(R.id.forceDifficultyContainer);
         mSharedPreferencesUtils = SharedPreferencesUtils.getInstance(getApplicationContext());
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-        startService(new Intent(this, MotionDetectionService.class));
+        if (mSharedPreferencesUtils.isDetectionOn()) {
+            MotionDetectionService.startMotionDetection(this);
+        }
     }
 
     private void setDifficultySpinner() {
@@ -178,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
 
         int currentLevelCompletedTasks = mSharedPreferencesUtils.getCompletedTaskCount() - completedLevelsTasks;
-        levelProgress.setMax(currentLevelMax - 1);
+        levelProgress.setMax(currentLevelMax);
         levelProgress.setProgress(currentLevelCompletedTasks);
 
         int levelPercentage = ((100 * currentLevelCompletedTasks) / currentLevelMax);
@@ -214,6 +219,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (!isSpinnerClick) {
             setDifficultySpinner();
         }
+        detectionSwitch.setChecked(mSharedPreferencesUtils.isDetectionOn());
+        detectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mSharedPreferencesUtils.setIsDetectionOn(isChecked);
+                if (isChecked) {
+                    MotionDetectionService.startMotionDetection(MainActivity.this);
+                } else {
+                    MotionDetectionService.stopMotionDetection(MainActivity.this);
+                }
+            }
+        });
+
     }
 
     @Override

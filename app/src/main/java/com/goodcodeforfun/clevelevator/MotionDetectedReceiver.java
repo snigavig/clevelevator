@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import static com.goodcodeforfun.clevelevator.MotionDetectionService.ELEVATION_DETECTED_BROADCAST_ACTION;
 import static com.goodcodeforfun.clevelevator.MotionDetectionService.SHAKE_DETECTED_BROADCAST_ACTION;

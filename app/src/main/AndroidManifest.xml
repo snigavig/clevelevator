@@ -22,12 +22,18 @@
             android:exported="true"
             android:process=":motiondetection" />
 
-        <receiver android:name=".RestartServiceReceiver">
+        <receiver
+            android:name=".RestartServiceReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="RestartService" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".MotionDetectedReceiver">
+        <receiver
+            android:name=".MotionDetectedReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="ShakeDetected" />
                 <action android:name="ElevationDetected" />
@@ -44,7 +50,7 @@
         <receiver
             android:name=".NotificationStateReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
 
             <intent-filter>
                 <action android:name="IsShowingNotification" />

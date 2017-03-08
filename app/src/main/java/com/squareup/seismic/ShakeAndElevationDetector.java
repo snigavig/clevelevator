@@ -25,11 +25,8 @@ import java.util.List;
  */
 public class ShakeAndElevationDetector implements SensorEventListener {
 
-    public static final int SENSITIVITY_ELEVATOR = 5; //needs tweaking
-    public static final int SENSITIVITY_LIGHT = 11;
-    public static final int SENSITIVITY_MEDIUM = 13;
-    public static final int SENSITIVITY_HARD = 15;
-    public static final int SENSITIVITY_HARDER = 19;
+    private static final int SENSITIVITY_ELEVATOR = 5; //needs tweaking
+    private static final int SENSITIVITY_SHAKE = 19;
     private static final int ACCELERATING_X_POSITIVE = 0;
     private static final int ACCELERATING_X_NEGATIVE = 1;
     private static final int ACCELERATING_Y_NEGATIVE = 2;
@@ -37,7 +34,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
     private static final int ACCELERATING_Z_NEGATIVE = 4;
     private static final int ACCELERATING_Z_POSITIVE = 5;
     private static final int ACCELERATING_DEFAULT = -1;
-    private static final int DEFAULT_ACCELERATION_THRESHOLD = SENSITIVITY_HARDER;
+    private static final int DEFAULT_ACCELERATION_THRESHOLD = SENSITIVITY_SHAKE;
     private static final int DEFAULT_ACCELERATION_ELEVATION_THRESHOLD = SENSITIVITY_ELEVATOR;
     private final SampleQueue queue = new SampleQueue();
     private final Listener listener;
@@ -45,8 +42,8 @@ public class ShakeAndElevationDetector implements SensorEventListener {
      * When the magnitude of total acceleration exceeds this
      * value, the phone is accelerating.
      */
-    private int accelerationThreshold = DEFAULT_ACCELERATION_THRESHOLD;
-    private int accelerationElevationThreshold = DEFAULT_ACCELERATION_ELEVATION_THRESHOLD;
+    private final int accelerationThreshold = DEFAULT_ACCELERATION_THRESHOLD;
+    private final int accelerationElevationThreshold = DEFAULT_ACCELERATION_ELEVATION_THRESHOLD;
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -124,7 +121,9 @@ public class ShakeAndElevationDetector implements SensorEventListener {
     /**
      * Returns true if the device is currently accelerating.
      */
-    private @AccelerationDirection int getHighestAccelerationAxis(SensorEvent event) {
+    private
+    @AccelerationDirection
+    int getHighestAccelerationAxis(SensorEvent event) {
         float ax = event.values[0];
         float ay = event.values[1];
         float az = event.values[2];
@@ -167,20 +166,6 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         }
 
         return highestAccelerationAxisDirection;
-    }
-
-    /**
-     * Sets the acceleration threshold sensitivity.
-     */
-    public void setShakeSensitivity(int accelerationThreshold) {
-        this.accelerationThreshold = accelerationThreshold;
-    }
-
-    /**
-     * Sets the acceleration elevation threshold sensitivity.
-     */
-    public void setElevationSensitivity(int accelerationElevationThreshold) {
-        this.accelerationElevationThreshold = accelerationElevationThreshold;
     }
 
     @Override
@@ -398,7 +383,8 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         /**
          * Acceleration highest value axis
          */
-        @AccelerationDirection int accelerationDirection;
+        @AccelerationDirection
+        int accelerationDirection;
 
         /**
          * Next sample in the queue or pool.

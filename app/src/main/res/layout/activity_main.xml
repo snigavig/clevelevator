@@ -12,7 +12,7 @@
     tools:context="com.goodcodeforfun.clevelevator.MainActivity">
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/detectionSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?android:attr/listPreferredItemHeight"
@@ -68,7 +68,7 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/difficultyLabeltextView"
+            android:id="@+id/difficultyLabelTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
