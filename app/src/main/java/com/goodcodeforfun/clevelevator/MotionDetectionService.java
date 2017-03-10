@@ -46,7 +46,8 @@ public class MotionDetectionService extends Service implements ShakeAndElevation
             Log.e("booo", "detector is null, creating");
             mShakeAndElevationDetector = new ShakeAndElevationDetector(this);
         }
-        if (START_MOTION_DETECTION_SERVICE_ACTION.equals(intent.getAction())) {
+
+        if (null == intent || null == intent.getAction() || START_MOTION_DETECTION_SERVICE_ACTION.equals(intent.getAction())) {
             Log.e("booo", "i should start");
             mShakeAndElevationDetector.start(sensorManager);
         } else {

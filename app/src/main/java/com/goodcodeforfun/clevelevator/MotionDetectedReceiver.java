@@ -19,17 +19,18 @@ public class MotionDetectedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "onReceive");
-        switch (intent.getAction()) {
-            case SHAKE_DETECTED_BROADCAST_ACTION:
-                NotificationService.startActionShowEquation(context.getApplicationContext(), SHAKE_DETECTED_BROADCAST_ACTION);
-                break;
-            case ELEVATION_DETECTED_BROADCAST_ACTION:
-                NotificationService.startActionShowEquation(context.getApplicationContext(), ELEVATION_DETECTED_BROADCAST_ACTION);
-                break;
-            default:
-                break;
+        if (!SharedPreferencesUtils.getInstance(context.getApplicationContext()).isShowingTask()) {
+            switch (intent.getAction()) {
+                case SHAKE_DETECTED_BROADCAST_ACTION:
+                    NotificationService.startActionShowEquation(context.getApplicationContext(), SHAKE_DETECTED_BROADCAST_ACTION);
+                    break;
+                case ELEVATION_DETECTED_BROADCAST_ACTION:
+                    NotificationService.startActionShowEquation(context.getApplicationContext(), ELEVATION_DETECTED_BROADCAST_ACTION);
+                    break;
+                default:
+                    break;
+            }
         }
-
     }
 
 }
