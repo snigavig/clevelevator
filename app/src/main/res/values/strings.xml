@@ -3,6 +3,8 @@
     <string name="app_description_short">Clevelevator - do more when you can</string>
     <string name="difficulty_label">Difficulty:</string>
     <string name="detection_switch">Turn detection on/off</string>
+    <string name="vibration_switch">Turn vibration on/off</string>
+    <string name="sound_switch">Turn sound on/off</string>
     <string name="difficulty_easy">Easy</string>
     <string name="difficulty_medium">Medium</string>
     <string name="difficulty_hard">Hard</string>
@@ -29,4 +31,7 @@
     <string name="level_direction_end" translatable="false"><![CDATA[>]]> <![CDATA[>]]> <![CDATA[>]]></string>
     <string name="force_difficulty_label">Force difficulty</string>
     <string name="no_progress_for_difficulty_label">No more progress on this difficulty</string>
+    <string name="notification_text">You\'ve got a task!</string>
+    <string name="appwidget_text">Elevator detection</string>
+    <string name="add_widget">Add widget</string>
 </resources>

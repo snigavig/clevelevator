@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
@@ -20,8 +21,8 @@ import static com.goodcodeforfun.clevelevator.NotificationStateReceiver.SET_NOTI
 import static com.goodcodeforfun.clevelevator.NotificationStateReceiver.SET_NOTIFICATION_IS_SHOWING_ACTION;
 
 public class NotificationService extends IntentService {
+    public static final String ACTION_SHOW_EQUATION = "com.goodcodeforfun.clevelevator.action.SHOW_EQUATION";
     private static final int NOTIFICATION_ID = 10101;
-    private static final String ACTION_SHOW_EQUATION = "com.goodcodeforfun.clevelevator.action.SHOW_EQUATION";
     private static final String ACTION_SHOW_ANSWER_CORRECT = "com.goodcodeforfun.clevelevator.action.SHOW_ANSWER_CORRECT";
     private static final String ACTION_SHOW_ANSWER_WRONG = "com.goodcodeforfun.clevelevator.action.SHOW_ANSWER_WRONG";
     private static final String ACTION_SHOW_LEVEL_UP = "com.goodcodeforfun.clevelevator.action.SHOW_LEVEL_UP";
@@ -119,7 +120,7 @@ public class NotificationService extends IntentService {
         equationNotification.setSmallIcon(R.drawable.ic_notification);
 
         Intent dismissIntent = new Intent(SET_NOTIFICATION_IS_NOT_SHOWING_ACTION);
-        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, CORRECT_ANSWER_REQUEST_CODE, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, DISMISS_REQUEST_CODE, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         equationNotification.setDeleteIntent(dismissPendingIntent);
 
         views.setImageViewResource(R.id.firstAnswerImageButton, iconAnswer);
@@ -154,6 +155,25 @@ public class NotificationService extends IntentService {
             views.setTextViewText(R.id.appTitleTextView, motionType);
         }
 
+        SharedPreferencesUtils sharedPreferencesUtils = SharedPreferencesUtils.getInstance(getApplicationContext());
+
+        if (sharedPreferencesUtils.isSoundOn()) {
+            equationNotification.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+        }
+        if (sharedPreferencesUtils.isVibrationOn()) {
+            equationNotification.setVibrate(new long[]{0, 300, 300, 300, 300, 300, 300});
+        } else {
+            equationNotification.setVibrate(new long[]{0, 0, 0});
+        }
+
+        equationNotification.setContentText(getString(R.string.notification_text));
+
+        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+        wearableExtender.setHintHideIcon(false);
+
+        equationNotification.extend(wearableExtender);
+        equationNotification.setPriority(NotificationCompat.PRIORITY_MAX);
+
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotificationManager.notify(NOTIFICATION_ID, equationNotification.build());
@@ -185,7 +205,7 @@ public class NotificationService extends IntentService {
         oneMoreIntent.setAction(ACTION_SHOW_EQUATION);
         PendingIntent oneMorePendingIntent = PendingIntent.getService(this, ONE_MORE_REQUEST_CODE, oneMoreIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Action oneMoreAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_add, getString(R.string.one_more_button_label), oneMorePendingIntent).build();
+        NotificationCompat.Action oneMoreAction = new NotificationCompat.Action.Builder(R.drawable.ic_plus_one_24dp, getString(R.string.one_more_button_label), oneMorePendingIntent).build();
         informationNotification.addAction(oneMoreAction);
 
         NotificationManager mNotificationManager =

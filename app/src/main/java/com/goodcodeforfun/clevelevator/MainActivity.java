@@ -1,5 +1,6 @@
 package com.goodcodeforfun.clevelevator;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,6 +30,7 @@ import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_EASY_CORREC
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_HARDER_CORRECT_ANSWER_COUNT;
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_HARD_CORRECT_ANSWER_COUNT;
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_MEDIUM_CORRECT_ANSWER_COUNT;
+import static com.goodcodeforfun.clevelevator.NotificationService.ACTION_SHOW_EQUATION;
 import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.COMPLETED_TASK_COUNT;
 import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.DIFFICULTY;
 
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private ProgressBar levelProgress;
     private Spinner difficultySpinner;
     private Switch detectionSwitch;
+    private Switch soundSwitch;
+    private Switch vibrationSwitch;
     private LinearLayout currentDifficultyContainer;
     private LinearLayout currentDifficultyNoProgressContainer;
     private LinearLayout forceDifficultyContainer;
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         levelProgress = (ProgressBar) findViewById(R.id.levelProgressBar);
         difficultySpinner = (Spinner) findViewById(R.id.forceDifficultySpinner);
         detectionSwitch = (Switch) findViewById(R.id.detectionSwitch);
+        soundSwitch = (Switch) findViewById(R.id.soundSwitch);
+        vibrationSwitch = (Switch) findViewById(R.id.vibrationSwitch);
         currentDifficultyContainer = (LinearLayout) findViewById(R.id.currentDifficultyContainer);
         currentDifficultyNoProgressContainer = (LinearLayout) findViewById(R.id.currentDifficultyNoProgressContainer);
         forceDifficultyContainer = (LinearLayout) findViewById(R.id.forceDifficultyContainer);
@@ -65,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (mSharedPreferencesUtils.isDetectionOn()) {
             MotionDetectionService.startMotionDetection(this);
         }
+        Intent intent = new Intent(this, NotificationService.class);
+        intent.setAction(ACTION_SHOW_EQUATION);
+        startService(intent);
     }
 
     private void setDifficultySpinner() {
@@ -219,6 +228,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (!isSpinnerClick) {
             setDifficultySpinner();
         }
+
+        DetectionAppWidget.updateWidget(MainActivity.this);
+
         detectionSwitch.setChecked(mSharedPreferencesUtils.isDetectionOn());
         detectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -229,6 +241,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 } else {
                     MotionDetectionService.stopMotionDetection(MainActivity.this);
                 }
+                DetectionAppWidget.updateWidget(MainActivity.this);
+            }
+        });
+
+        soundSwitch.setChecked(mSharedPreferencesUtils.isSoundOn());
+        soundSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mSharedPreferencesUtils.setIsSoundOn(isChecked);
+            }
+        });
+
+        vibrationSwitch.setChecked(mSharedPreferencesUtils.isVibrationOn());
+        vibrationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mSharedPreferencesUtils.setIsVibrationOn(isChecked);
             }
         });
 

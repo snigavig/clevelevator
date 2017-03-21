@@ -23,6 +23,8 @@ public class SharedPreferencesUtils {
     private static final String FORCED_DIFFICULTY = "FORCED_DIFFICULTY_KEY";
     private static final String IS_SHOWING_TASK = "IS_SHOWING_TASK_KEY";
     private static final String IS_DETECTION_ON = "IS_DETECTION_ON_KEY";
+    private static final String IS_SOUND_ON = "IS_SOUND_ON_KEY";
+    private static final String IS_VIBRATION_ON = "IS_VIBRATION_ON_KEY";
 
     private static SharedPreferencesUtils mInstance;
     private final SharedPreferences mSharedPreferences;
@@ -142,6 +144,26 @@ public class SharedPreferencesUtils {
     public synchronized void setIsDetectionOn(boolean value) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_DETECTION_ON, value);
+        editor.apply();
+    }
+
+    public synchronized boolean isSoundOn() {
+        return mSharedPreferences.getBoolean(IS_SOUND_ON, true);
+    }
+
+    public synchronized void setIsSoundOn(boolean value) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(IS_SOUND_ON, value);
+        editor.apply();
+    }
+
+    public synchronized boolean isVibrationOn() {
+        return mSharedPreferences.getBoolean(IS_VIBRATION_ON, true);
+    }
+
+    public synchronized void setIsVibrationOn(boolean value) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(IS_VIBRATION_ON, value);
         editor.apply();
     }
 }

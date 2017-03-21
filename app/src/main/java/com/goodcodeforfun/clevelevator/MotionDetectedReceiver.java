@@ -31,6 +31,7 @@ public class MotionDetectedReceiver extends BroadcastReceiver {
                     break;
             }
         }
+
     }
 
 }
