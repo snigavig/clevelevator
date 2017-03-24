@@ -134,21 +134,16 @@ public class EquationGenerationUtils {
     }
 
     private static int getInvertedWrongResult(int result) {
+        int invertedWrongResult;
         //we cannot inverse zero
-        if (result == 0) {
-            boolean isPositive = mRandom.nextBoolean();
-            if (isPositive) {
-                result++;
-            } else {
-                result--;
-            }
-        }
-        if (result > 0) {
-            result = 0 - result;
+        invertedWrongResult = (result == 0) ? (mRandom.nextBoolean() ? 1 : -1) : result;
+
+        if (invertedWrongResult > 0) {
+            invertedWrongResult = 0 - invertedWrongResult;
         } else {
-            result = Math.abs(result);
+            invertedWrongResult = Math.abs(invertedWrongResult);
         }
-        return result;
+        return invertedWrongResult;
     }
 
     private static int getRandomWrongIntResultByMethod(int result, @Difficulty int difficulty, int method) {
@@ -218,12 +213,14 @@ public class EquationGenerationUtils {
 
     private static int getRandomNumberLessThen(int max, @Difficulty int difficulty) {
         int min = applyCoefficient(minInteger, difficulty);
+        int correctedMax;
         if (max < min) {
-            int buffer = max;
-            max = min;
-            min = buffer;
+            correctedMax = min;
+            min = max;
+        } else {
+            correctedMax = max;
         }
-        return mRandom.nextInt(max + 1 - min) + min;
+        return mRandom.nextInt(correctedMax + 1 - min) + min;
     }
 
     private static int getRandomNumberMoreThen(int min, @Difficulty int difficulty) {
@@ -277,13 +274,16 @@ public class EquationGenerationUtils {
     }
 
     private static ArrayList<Integer> getNumberDivisors(int number) {
+        int positiveNumber;
         if (number < 0) {
-            number = Math.abs(number);
+            positiveNumber = Math.abs(number);
+        } else {
+            positiveNumber = number;
         }
         ArrayList<Integer> divisors = new ArrayList<>();
         divisors.add(1);
-        for (int i = 2; i <= number / 2; i++) {
-            if (number % i == 0) {
+        for (int i = 2; i <= positiveNumber / 2; i++) {
+            if (positiveNumber % i == 0) {
                 divisors.add(i);
             }
         }
@@ -355,12 +355,11 @@ public class EquationGenerationUtils {
             for (Node child : node.getChildren()) {
                 if (child.type == Node.TYPE_OPERATION) {
                     flattenBottomNode(child);
-                } else if (child.type == Node.TYPE_OPERAND) {
-                    if (node.getChildren().size() > 0 &&
-                            node.getChildren().get(0).type == Node.TYPE_OPERAND &&
-                            node.getChildren().get(1).type == Node.TYPE_OPERAND) {
-                        flopExpressionToOperand(node);
-                    }
+                } else if (child.type == Node.TYPE_OPERAND &&
+                        node.getChildren().size() > 0 &&
+                        node.getChildren().get(0).type == Node.TYPE_OPERAND &&
+                        node.getChildren().get(1).type == Node.TYPE_OPERAND) {
+                    flopExpressionToOperand(node);
                 }
             }
         }
@@ -373,17 +372,15 @@ public class EquationGenerationUtils {
                 String secondOperandString = node.getChildren().get(1).getData();
                 Integer secondOperand = node.getChildren().get(1).getDataAsInteger();
 
-                if (secondOperand != null) {
-                    if (secondOperand < 0) {
-                        if (OPERATION_ADDITION.equals(operation)) {
-                            secondOperand = Math.abs(secondOperand);
-                            operation = OPERATION_SUBTRACTION;
-                        } else if (OPERATION_SUBTRACTION.equals(operation)) {
-                            secondOperand = Math.abs(secondOperand);
-                            operation = OPERATION_ADDITION;
-                        }
-                        secondOperandString = String.valueOf(secondOperand);
+                if (secondOperand != null && secondOperand < 0) {
+                    if (OPERATION_ADDITION.equals(operation)) {
+                        secondOperand = Math.abs(secondOperand);
+                        operation = OPERATION_SUBTRACTION;
+                    } else if (OPERATION_SUBTRACTION.equals(operation)) {
+                        secondOperand = Math.abs(secondOperand);
+                        operation = OPERATION_ADDITION;
                     }
+                    secondOperandString = String.valueOf(secondOperand);
                 }
                 StringBuilder floppedData = new StringBuilder();
                 floppedData.append(firstOperandString);

@@ -16,9 +16,6 @@ public class MotionDetectionService extends Service implements ShakeAndElevation
     private static final String STOP_MOTION_DETECTION_SERVICE_ACTION = "StopService";
     private ShakeAndElevationDetector mShakeAndElevationDetector;
 
-    public MotionDetectionService() {
-    }
-
     public static void startMotionDetection(Context context) {
         Intent intent = new Intent(context, MotionDetectionService.class);
         intent.setAction(START_MOTION_DETECTION_SERVICE_ACTION);

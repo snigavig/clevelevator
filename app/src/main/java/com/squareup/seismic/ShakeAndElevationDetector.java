@@ -142,33 +142,27 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         double highestMagnitude = 0;
         int highestAccelerationAxisDirection = ACCELERATING_DEFAULT;
 
-        if (magnitudeSquaredX > threshold) {
-            if (magnitudeSquaredX > highestMagnitude) {
-                highestMagnitude = magnitudeSquaredX;
-                if (ax > 0) {
-                    highestAccelerationAxisDirection = ACCELERATING_X_POSITIVE;
-                } else {
-                    highestAccelerationAxisDirection = ACCELERATING_X_NEGATIVE;
-                }
+        if (magnitudeSquaredX > threshold && magnitudeSquaredX > highestMagnitude) {
+            highestMagnitude = magnitudeSquaredX;
+            if (ax > 0) {
+                highestAccelerationAxisDirection = ACCELERATING_X_POSITIVE;
+            } else {
+                highestAccelerationAxisDirection = ACCELERATING_X_NEGATIVE;
             }
         }
         if (magnitudeSquaredY > highestMagnitude && magnitudeSquaredY > threshold) {
-            if (magnitudeSquaredY > highestMagnitude) {
-                highestMagnitude = magnitudeSquaredY;
-                if (ay > 0) {
-                    highestAccelerationAxisDirection = ACCELERATING_Y_POSITIVE;
-                } else {
-                    highestAccelerationAxisDirection = ACCELERATING_Y_NEGATIVE;
-                }
+            highestMagnitude = magnitudeSquaredY;
+            if (ay > 0) {
+                highestAccelerationAxisDirection = ACCELERATING_Y_POSITIVE;
+            } else {
+                highestAccelerationAxisDirection = ACCELERATING_Y_NEGATIVE;
             }
         }
         if (magnitudeSquaredZ > highestMagnitude && magnitudeSquaredZ > threshold) {
-            if (magnitudeSquaredZ > highestMagnitude) {
-                if (az > 0) {
-                    highestAccelerationAxisDirection = ACCELERATING_Z_POSITIVE;
-                } else {
-                    highestAccelerationAxisDirection = ACCELERATING_Z_NEGATIVE;
-                }
+            if (az > 0) {
+                highestAccelerationAxisDirection = ACCELERATING_Z_POSITIVE;
+            } else {
+                highestAccelerationAxisDirection = ACCELERATING_Z_NEGATIVE;
             }
         }
 
@@ -177,6 +171,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //not relevant
     }
 
     @IntDef({ACCELERATING_X_POSITIVE, ACCELERATING_X_NEGATIVE, ACCELERATING_Y_NEGATIVE, ACCELERATING_Y_POSITIVE, ACCELERATING_Z_NEGATIVE, ACCELERATING_Z_POSITIVE, ACCELERATING_DEFAULT})
@@ -321,50 +316,18 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         boolean isElevating() {
             List<Sample> currentQueue = asList();
             int acceleratingSingleAxisCount = 0;
-            int acceleratingXPositiveCount = 0;
-            int acceleratingXNegativeCount = 0;
-            int acceleratingYPositiveCount = 0;
-            int acceleratingYNegativeCount = 0;
-            int acceleratingZPositiveCount = 0;
-            int acceleratingZNegativeCount = 0;
+            int[] acceleratingCountArray = {0, 0, 0, 0, 0, 0};
             for (Sample sample : currentQueue) {
-                switch (sample.accelerationDirection) {
-                    case ACCELERATING_X_POSITIVE:
-                        acceleratingXPositiveCount++;
-                        break;
-                    case ACCELERATING_X_NEGATIVE:
-                        acceleratingXNegativeCount++;
-                        break;
-                    case ACCELERATING_Y_POSITIVE:
-                        acceleratingYPositiveCount++;
-                        break;
-                    case ACCELERATING_Y_NEGATIVE:
-                        acceleratingYNegativeCount++;
-                        break;
-                    case ACCELERATING_Z_POSITIVE:
-                        acceleratingZPositiveCount++;
-                        break;
-                    case ACCELERATING_Z_NEGATIVE:
-                        acceleratingZNegativeCount++;
-                        break;
-                    case ACCELERATING_DEFAULT:
-                    default:
-                        break;
+                if (sample.accelerationDirection != ACCELERATING_DEFAULT) {
+                    acceleratingCountArray[sample.accelerationDirection]++;
                 }
             }
 
-            acceleratingSingleAxisCount = acceleratingXPositiveCount > acceleratingSingleAxisCount ?
-                    acceleratingXPositiveCount : acceleratingSingleAxisCount;
-            acceleratingSingleAxisCount = acceleratingXNegativeCount > acceleratingSingleAxisCount ?
-                    acceleratingXNegativeCount : acceleratingSingleAxisCount;
-            acceleratingSingleAxisCount = acceleratingYPositiveCount > acceleratingSingleAxisCount ?
-                    acceleratingYPositiveCount : acceleratingSingleAxisCount;
-            acceleratingSingleAxisCount = acceleratingYNegativeCount > acceleratingSingleAxisCount ?
-                    acceleratingYNegativeCount : acceleratingSingleAxisCount;
-            acceleratingSingleAxisCount = acceleratingZPositiveCount > acceleratingSingleAxisCount ?
-                    acceleratingZPositiveCount : acceleratingSingleAxisCount;
-            acceleratingSingleAxisCount = acceleratingZNegativeCount > acceleratingSingleAxisCount ?
-                    acceleratingZNegativeCount : acceleratingSingleAxisCount;
+            for (int anAcceleratingCountArray : acceleratingCountArray) {
+                if (anAcceleratingCountArray > acceleratingSingleAxisCount) {
+                    acceleratingSingleAxisCount = anAcceleratingCountArray;
+                }
+            }
 
             return newest != null
                     && oldest != null

@@ -33,7 +33,7 @@ import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.COMPLETED_T
 import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.DIFFICULTY;
 
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener {
 
     private SharedPreferencesUtils mSharedPreferencesUtils;
 
@@ -79,10 +79,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (difficulty == DIFFICULTY_EASY) {
             forceDifficultyContainer.setVisibility(View.GONE);
             return;
-        } else {
-            if (forceDifficultyContainer.getVisibility() == View.GONE) {
-                forceDifficultyContainer.setVisibility(View.VISIBLE);
-            }
+        } else if (forceDifficultyContainer.getVisibility() == View.GONE) {
+            forceDifficultyContainer.setVisibility(View.VISIBLE);
         }
         switch (difficulty) {
             case DIFFICULTY_MEDIUM:
@@ -102,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 break;
             case DIFFICULTY_NIGHTMARE:
                 mutableDifficultyList.remove(getString(R.string.difficulty_nightmare));
+                break;
             default:
                 break;
         }
@@ -110,45 +109,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         difficultySpinner.setAdapter(adapter);
         difficultySpinner.setSelection(adapter.getPosition(getString(mSharedPreferencesUtils.getDifficultyAsStringId(mSharedPreferencesUtils.getForcedDifficulty()))));
-        difficultySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (position != mSharedPreferencesUtils.getForcedDifficulty()) {
-
-                    switch (position) {
-                        case 0:
-                            mSharedPreferencesUtils.setForcedDifficulty(FORCED_DIFFICULTY_NONE);
-                            break;
-                        case 1:
-                            mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_EASY);
-                            break;
-                        case 2:
-                            mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_MEDIUM);
-                            break;
-                        case 3:
-                            mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_HARD);
-                            break;
-                        case 4:
-                            mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_HARDER);
-                            break;
-                        case 5:
-                            mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_NIGHTMARE);
-                            break;
-                    }
-                    if (SharedPreferencesUtils.getInstance(MainActivity.this).isShowingTask()
-                            && mSharedPreferencesUtils.getForcedDifficulty() != mSharedPreferencesUtils.getDifficulty()) {
-                        NotificationService.startActionShowEquation(getApplicationContext(), null);
-                    }
-                    setupUI(true);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // nothing selected - nothing to do
-            }
-
-        });
+        difficultySpinner.setOnItemSelectedListener(this);
     }
 
     private void setCurrentProgress() {
@@ -269,5 +230,42 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (COMPLETED_TASK_COUNT.equals(key) || DIFFICULTY.equals(key)) {
             setupUI(false);
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+        if (position != mSharedPreferencesUtils.getForcedDifficulty()) {
+            switch (position) {
+                case 5:
+                    mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_NIGHTMARE);
+                    break;
+                case 4:
+                    mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_HARDER);
+                    break;
+                case 3:
+                    mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_HARD);
+                    break;
+                case 2:
+                    mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_MEDIUM);
+                    break;
+                case 1:
+                    mSharedPreferencesUtils.setForcedDifficulty(DIFFICULTY_EASY);
+                    break;
+                case 0:
+                default:
+                    mSharedPreferencesUtils.setForcedDifficulty(FORCED_DIFFICULTY_NONE);
+                    break;
+            }
+            if (SharedPreferencesUtils.getInstance(MainActivity.this).isShowingTask()
+                    && mSharedPreferencesUtils.getForcedDifficulty() != mSharedPreferencesUtils.getDifficulty()) {
+                NotificationService.startActionShowEquation(getApplicationContext(), null);
+            }
+            setupUI(true);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parentView) {
+        // nothing selected - nothing to do
     }
 }
