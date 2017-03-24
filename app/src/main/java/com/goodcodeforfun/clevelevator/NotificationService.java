@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
 
@@ -27,7 +26,7 @@ public class NotificationService extends IntentService {
     private static final String ACTION_SHOW_ANSWER_WRONG = "com.goodcodeforfun.clevelevator.action.SHOW_ANSWER_WRONG";
     private static final String ACTION_SHOW_LEVEL_UP = "com.goodcodeforfun.clevelevator.action.SHOW_LEVEL_UP";
     private static final String ACTION_CANCEL = "com.goodcodeforfun.clevelevator.action.CANCEL";
-    private static final String EXTRA_PARAM_MOTION_TYPE = "com.goodcodeforfun.clevelevator.extra.PARAM_MOTION_TYPE";
+    private static final String EXTRA_PARAM_IS_NOTIFY = "com.goodcodeforfun.clevelevator.extra.PARAM_IS_NOTIFY";
     private static final int CORRECT_ANSWER_REQUEST_CODE = 303;
     private static final int WRONG_ANSWER_REQUEST_CODE = 404;
     private static final int ONE_MORE_REQUEST_CODE = 505;
@@ -40,7 +39,6 @@ public class NotificationService extends IntentService {
     public static void startActionShowEquation(Context context, String motionType) {
         Intent intent = new Intent(context, NotificationService.class);
         intent.setAction(ACTION_SHOW_EQUATION);
-        intent.putExtra(EXTRA_PARAM_MOTION_TYPE, motionType);
         context.startService(intent);
     }
 
@@ -74,7 +72,7 @@ public class NotificationService extends IntentService {
             SharedPreferencesUtils sharedPreferencesUtils = SharedPreferencesUtils.getInstance(getApplicationContext());
             switch (intent.getAction()) {
                 case ACTION_SHOW_EQUATION:
-                    final String paramMotionType = intent.getStringExtra(EXTRA_PARAM_MOTION_TYPE);
+                    final boolean paramIsNotify = intent.getBooleanExtra(EXTRA_PARAM_IS_NOTIFY, true);
                     int forcedDifficulty = sharedPreferencesUtils.getForcedDifficulty();
                     int difficulty;
                     if (forcedDifficulty == FORCED_DIFFICULTY_NONE) {
@@ -88,7 +86,7 @@ public class NotificationService extends IntentService {
                             equation.getResult(),
                             equation.getFirstWrongResult(),
                             equation.getSecondWrongResult(),
-                            paramMotionType);
+                            paramIsNotify);
                     break;
                 case ACTION_SHOW_ANSWER_CORRECT:
                     handleActionShowAnswerCorrect();
@@ -108,7 +106,7 @@ public class NotificationService extends IntentService {
         }
     }
 
-    private void handleActionShowEquation(String equation, int result, int firstWrongResult, int secondWrongResult, @Nullable String motionType) {
+    private void handleActionShowEquation(String equation, int result, int firstWrongResult, int secondWrongResult, boolean isNotify) {
         NotificationCompat.Builder equationNotification;
         int iconAnswer = R.drawable.answer_button_background;
 
@@ -151,19 +149,16 @@ public class NotificationService extends IntentService {
         views.setTextViewText(answerViews.get(2), String.valueOf(secondWrongResult));
         views.setOnClickPendingIntent(answerViews.get(2), wrongAnswerPendingIntent);
 
-        if (null != motionType) {
-            views.setTextViewText(R.id.appTitleTextView, motionType);
-        }
-
-        SharedPreferencesUtils sharedPreferencesUtils = SharedPreferencesUtils.getInstance(getApplicationContext());
-
-        if (sharedPreferencesUtils.isSoundOn()) {
-            equationNotification.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
-        }
-        if (sharedPreferencesUtils.isVibrationOn()) {
-            equationNotification.setVibrate(new long[]{0, 300, 300, 300, 300, 300, 300});
-        } else {
-            equationNotification.setVibrate(new long[]{0, 0, 0});
+        if (isNotify) {
+            SharedPreferencesUtils sharedPreferencesUtils = SharedPreferencesUtils.getInstance(getApplicationContext());
+            if (sharedPreferencesUtils.isSoundOn()) {
+                equationNotification.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+            }
+            if (sharedPreferencesUtils.isVibrationOn()) {
+                equationNotification.setVibrate(new long[]{0, 300, 300, 300, 300, 300, 300});
+            } else {
+                equationNotification.setVibrate(new long[]{0, 0, 0});
+            }
         }
 
         equationNotification.setContentText(getString(R.string.notification_text));
@@ -203,6 +198,7 @@ public class NotificationService extends IntentService {
 
         Intent oneMoreIntent = new Intent(this, NotificationService.class);
         oneMoreIntent.setAction(ACTION_SHOW_EQUATION);
+        oneMoreIntent.putExtra(EXTRA_PARAM_IS_NOTIFY, false);
         PendingIntent oneMorePendingIntent = PendingIntent.getService(this, ONE_MORE_REQUEST_CODE, oneMoreIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action oneMoreAction = new NotificationCompat.Action.Builder(R.drawable.ic_plus_one_24dp, getString(R.string.one_more_button_label), oneMorePendingIntent).build();

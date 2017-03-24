@@ -21,7 +21,7 @@ public class EquationGenerationUtils {
     public static final int DIFFICULTY_HARDEST = 6;
     private static final int DIFFICULTY_EASY_COEFFICIENT = 100000000;
     private static final int DIFFICULTY_MEDIUM_COEFFICIENT = 100000000;
-    private static final int DIFFICULTY_HARD_COEFFICIENT = 10000000;
+    private static final int DIFFICULTY_HARD_COEFFICIENT = 100000000;
     private static final int DIFFICULTY_HARDER_COEFFICIENT = 10000000;
     private static final int DIFFICULTY_NIGHTMARE_COEFFICIENT = 10000000;
     private static final int DIFFICULTY_EASY_OPERATIONS_COUNT = 1;
@@ -237,6 +237,14 @@ public class EquationGenerationUtils {
         return mRandom.nextInt(max + 1 - min) + min;
     }
 
+    private static int getRandomNonZeroNumber(@Difficulty int difficulty) {
+        int randomNonZeroNumber = getRandomNumber(difficulty);
+        while (randomNonZeroNumber == 0) {
+            randomNonZeroNumber = getRandomNumber(difficulty);
+        }
+        return randomNonZeroNumber;
+    }
+
     private static Expression generateExpression(int result, @Difficulty int difficulty) {
         Expression expression = new Expression();
         String operation = getRandomOperation();
@@ -245,7 +253,7 @@ public class EquationGenerationUtils {
 
         switch (operation) {
             case OPERATION_DIVISION:
-                secondOperand = getRandomNumber(difficulty);
+                secondOperand = getRandomNonZeroNumber(difficulty);
                 firstOperand = result * secondOperand;
                 break;
             case OPERATION_MULTIPLICATION:

@@ -44,6 +44,9 @@ public class ShakeAndElevationDetector implements SensorEventListener {
      */
     private final int accelerationThreshold = DEFAULT_ACCELERATION_THRESHOLD;
     private final int accelerationElevationThreshold = DEFAULT_ACCELERATION_ELEVATION_THRESHOLD;
+    private final double accelerationMinimalNegativeThreshold = -0.2d;
+    private final double accelerationMinimalPositiveThreshold = Math.abs(accelerationMinimalNegativeThreshold);
+
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
@@ -89,17 +92,21 @@ public class ShakeAndElevationDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        boolean accelerating = isAccelerating(event);
-        int highestAccelerationAxis = getHighestAccelerationAxis(event);
-        long timestamp = event.timestamp;
-        queue.add(timestamp, accelerating, highestAccelerationAxis);
-        if (queue.isShaking()) {
-            queue.clear();
-            listener.hearShake();
-        }
-        if (queue.isElevating()) {
-            queue.clear();
-            listener.hearElevation();
+        if (event.values[0] < accelerationMinimalNegativeThreshold || event.values[0] > accelerationMinimalPositiveThreshold ||
+                event.values[1] < accelerationMinimalNegativeThreshold || event.values[1] > accelerationMinimalPositiveThreshold ||
+                event.values[2] < accelerationMinimalNegativeThreshold || event.values[2] > accelerationMinimalPositiveThreshold) {
+            boolean accelerating = isAccelerating(event);
+            int highestAccelerationAxis = getHighestAccelerationAxis(event);
+            long timestamp = event.timestamp;
+            queue.add(timestamp, accelerating, highestAccelerationAxis);
+            if (queue.isShaking()) {
+                queue.clear();
+                listener.hearShake();
+            }
+            if (queue.isElevating()) {
+                queue.clear();
+                listener.hearElevation();
+            }
         }
     }
 
@@ -362,7 +369,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
             return newest != null
                     && oldest != null
                     && newest.timestamp - oldest.timestamp >= MIN_WINDOW_SIZE
-                    && acceleratingSingleAxisCount >= (sampleCount >> 1) + (sampleCount >> 2);
+                    && acceleratingSingleAxisCount >= sampleCount * 0.85f;
         }
     }
 

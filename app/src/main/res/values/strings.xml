@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Clevelevator</string>
-    <string name="app_description_short">Clevelevator - do more when you can</string>
     <string name="difficulty_label">Difficulty:</string>
     <string name="detection_switch">Turn detection on/off</string>
     <string name="vibration_switch">Turn vibration on/off</string>
@@ -16,6 +15,10 @@
     <string name="level_up_message">Level up! Congrats!!</string>
     <string name="wrong_answer_message">Wrong answer.</string>
     <string name="correct_answer_message">Correct! Good job!!</string>
+    <string name="force_difficulty_label">Force difficulty</string>
+    <string name="no_progress_for_difficulty_label">No more progress on this difficulty</string>
+    <string name="notification_text">You\'ve got a task!</string>
+    <string name="appwidget_text">Elevator detection</string>
 
     <!--No translation needed-->
     <string-array name="difficulty" translatable="false">
@@ -29,9 +32,4 @@
     <string name="level_direction_start" translatable="false"><![CDATA[>]]></string>
     <string name="level_direction_middle" translatable="false"><![CDATA[>]]> <![CDATA[>]]></string>
     <string name="level_direction_end" translatable="false"><![CDATA[>]]> <![CDATA[>]]> <![CDATA[>]]></string>
-    <string name="force_difficulty_label">Force difficulty</string>
-    <string name="no_progress_for_difficulty_label">No more progress on this difficulty</string>
-    <string name="notification_text">You\'ve got a task!</string>
-    <string name="appwidget_text">Elevator detection</string>
-    <string name="add_widget">Add widget</string>
 </resources>

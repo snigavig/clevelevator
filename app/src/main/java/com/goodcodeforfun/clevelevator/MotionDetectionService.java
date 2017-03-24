@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.squareup.seismic.ShakeAndElevationDetector;
 
@@ -41,17 +40,13 @@ public class MotionDetectionService extends Service implements ShakeAndElevation
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Log.e("booo", "starting motion detection service");
         if (mShakeAndElevationDetector == null) {
-            Log.e("booo", "detector is null, creating");
             mShakeAndElevationDetector = new ShakeAndElevationDetector(this);
         }
 
         if (null == intent || null == intent.getAction() || START_MOTION_DETECTION_SERVICE_ACTION.equals(intent.getAction())) {
-            Log.e("booo", "i should start");
             mShakeAndElevationDetector.start(sensorManager);
         } else {
-            Log.e("booo", "i should stop");
             mShakeAndElevationDetector.stop();
         }
         return START_STICKY;

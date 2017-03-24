@@ -30,8 +30,8 @@ public class DetectionAppWidget extends AppWidgetProvider {
         context.sendBroadcast(intent);
     }
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+    private static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+                                        int appWidgetId) {
 
         int iconDetectionOn = R.drawable.ic_check_box_24dp;
         int iconDetectionOff = R.drawable.ic_check_box_out_24dp;

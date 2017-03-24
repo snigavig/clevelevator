@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.goodcodeforfun.clevelevator">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,7 +21,7 @@
         <service
             android:name=".MotionDetectionService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:process=":motiondetection" />
 
         <receiver
@@ -28,6 +30,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="RestartService" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver

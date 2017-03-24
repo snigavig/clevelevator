@@ -1,6 +1,5 @@
 package com.goodcodeforfun.clevelevator;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -30,7 +29,6 @@ import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_EASY_CORREC
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_HARDER_CORRECT_ANSWER_COUNT;
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_HARD_CORRECT_ANSWER_COUNT;
 import static com.goodcodeforfun.clevelevator.GameLogicService.LEVEL_MEDIUM_CORRECT_ANSWER_COUNT;
-import static com.goodcodeforfun.clevelevator.NotificationService.ACTION_SHOW_EQUATION;
 import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.COMPLETED_TASK_COUNT;
 import static com.goodcodeforfun.clevelevator.SharedPreferencesUtils.DIFFICULTY;
 
@@ -71,9 +69,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (mSharedPreferencesUtils.isDetectionOn()) {
             MotionDetectionService.startMotionDetection(this);
         }
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.setAction(ACTION_SHOW_EQUATION);
-        startService(intent);
     }
 
     private void setDifficultySpinner() {

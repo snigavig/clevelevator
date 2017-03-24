@@ -16,7 +16,8 @@ public class RestartServiceReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "onReceive");
-        MotionDetectionService.startMotionDetection(context.getApplicationContext());
+        if (SharedPreferencesUtils.getInstance(context.getApplicationContext()).isDetectionOn()) {
+            MotionDetectionService.startMotionDetection(context.getApplicationContext());
+        }
     }
-
 }
