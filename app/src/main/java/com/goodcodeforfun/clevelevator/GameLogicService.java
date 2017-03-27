@@ -7,7 +7,6 @@ import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.DIFFICULTY
 import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.DIFFICULTY_HARD;
 import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.DIFFICULTY_HARDER;
 import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.DIFFICULTY_MEDIUM;
-import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.DIFFICULTY_NIGHTMARE;
 import static com.goodcodeforfun.clevelevator.EquationGenerationUtils.FORCED_DIFFICULTY_NONE;
 
 public class GameLogicService extends IntentService {
@@ -15,9 +14,9 @@ public class GameLogicService extends IntentService {
     public static final String WRONG_ANSWER_ACTION = "com.goodcodeforfun.clevelevator.action.WRONG_ANSWER";
 
     public static final int LEVEL_DEFAULT_CORRECT_ANSWER_COUNT = 0;
-    public static final int LEVEL_EASY_CORRECT_ANSWER_COUNT = 10;
-    public static final int LEVEL_MEDIUM_CORRECT_ANSWER_COUNT = 50;
-    public static final int LEVEL_HARD_CORRECT_ANSWER_COUNT = 100;
+    public static final int LEVEL_EASY_CORRECT_ANSWER_COUNT = 25;
+    public static final int LEVEL_MEDIUM_CORRECT_ANSWER_COUNT = 100;
+    public static final int LEVEL_HARD_CORRECT_ANSWER_COUNT = 200;
     public static final int LEVEL_HARDER_CORRECT_ANSWER_COUNT = 1000;
 
 
@@ -46,29 +45,12 @@ public class GameLogicService extends IntentService {
             completedTaskCount++;
             sharedPreferencesUtils.setCompletedTaskCount(completedTaskCount);
         }
-        boolean isLevelUp = false;
 
-        if (currentDifficulty == DIFFICULTY_EASY && completedTaskCount >= LEVEL_EASY_CORRECT_ANSWER_COUNT) {
-            sharedPreferencesUtils.setDifficulty(DIFFICULTY_MEDIUM);
-            isLevelUp = true;
-        }
-
-        if (currentDifficulty == DIFFICULTY_MEDIUM && completedTaskCount >= LEVEL_MEDIUM_CORRECT_ANSWER_COUNT) {
-            sharedPreferencesUtils.setDifficulty(DIFFICULTY_HARD);
-            isLevelUp = true;
-        }
-
-        if (currentDifficulty == DIFFICULTY_HARD && completedTaskCount >= LEVEL_HARD_CORRECT_ANSWER_COUNT) {
-            sharedPreferencesUtils.setDifficulty(DIFFICULTY_HARDER);
-            isLevelUp = true;
-        }
-
-        if (currentDifficulty == DIFFICULTY_HARDER && completedTaskCount >= LEVEL_HARDER_CORRECT_ANSWER_COUNT) {
-            sharedPreferencesUtils.setDifficulty(DIFFICULTY_NIGHTMARE);
-            isLevelUp = true;
-        }
-
-        if (isLevelUp) {
+        if (currentDifficulty == DIFFICULTY_EASY && completedTaskCount >= LEVEL_EASY_CORRECT_ANSWER_COUNT ||
+                currentDifficulty == DIFFICULTY_MEDIUM && completedTaskCount >= LEVEL_MEDIUM_CORRECT_ANSWER_COUNT ||
+                currentDifficulty == DIFFICULTY_HARD && completedTaskCount >= LEVEL_HARD_CORRECT_ANSWER_COUNT ||
+                currentDifficulty == DIFFICULTY_HARDER && completedTaskCount >= LEVEL_HARDER_CORRECT_ANSWER_COUNT) {
+            sharedPreferencesUtils.incrementDifficulty();
             showLevelUp();
         } else {
             showAnswerCorrect();

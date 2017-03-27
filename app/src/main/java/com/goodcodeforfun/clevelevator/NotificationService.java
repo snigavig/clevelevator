@@ -5,6 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
@@ -115,6 +118,8 @@ public class NotificationService extends IntentService {
 
         equationNotification = new NotificationCompat.Builder(this);
         equationNotification.setCustomBigContentView(views);
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_large_icon);
+        equationNotification.setLargeIcon(largeIcon);
         equationNotification.setSmallIcon(R.drawable.ic_notification);
 
         Intent dismissIntent = new Intent(SET_NOTIFICATION_IS_NOT_SHOWING_ACTION);
@@ -193,7 +198,12 @@ public class NotificationService extends IntentService {
     private void showInformationNotification(String contentText) {
         NotificationCompat.Builder informationNotification;
         informationNotification = new NotificationCompat.Builder(this);
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_large_icon);
+        informationNotification.setLargeIcon(largeIcon);
         informationNotification.setSmallIcon(R.drawable.ic_notification);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            informationNotification.setContentTitle(getString(R.string.app_name));
+        }
         informationNotification.setContentText(contentText);
 
         Intent oneMoreIntent = new Intent(this, NotificationService.class);
@@ -201,7 +211,7 @@ public class NotificationService extends IntentService {
         oneMoreIntent.putExtra(EXTRA_PARAM_IS_NOTIFY, false);
         PendingIntent oneMorePendingIntent = PendingIntent.getService(this, ONE_MORE_REQUEST_CODE, oneMoreIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Action oneMoreAction = new NotificationCompat.Action.Builder(R.drawable.ic_plus_one_24dp, getString(R.string.one_more_button_label), oneMorePendingIntent).build();
+        NotificationCompat.Action oneMoreAction = new NotificationCompat.Action.Builder(R.drawable.ic_one_more, getString(R.string.one_more_button_label), oneMorePendingIntent).build();
         informationNotification.addAction(oneMoreAction);
 
         NotificationManager mNotificationManager =

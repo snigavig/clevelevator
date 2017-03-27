@@ -26,7 +26,7 @@ import java.util.List;
 public class ShakeAndElevationDetector implements SensorEventListener {
 
     private static final int SENSITIVITY_ELEVATOR = 5; //needs tweaking
-    private static final int SENSITIVITY_SHAKE = 19;
+    private static final int SENSITIVITY_SHAKE = 18;
     private static final int ACCELERATING_X_POSITIVE = 0;
     private static final int ACCELERATING_X_NEGATIVE = 1;
     private static final int ACCELERATING_Y_NEGATIVE = 2;
@@ -202,8 +202,8 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         /**
          * Window size in ns. Used to compute the average.
          */
-        private static final long MAX_WINDOW_SIZE = 1000000000; // 1.0s
-        private static final long MIN_WINDOW_SIZE = MAX_WINDOW_SIZE >> 1; // 0.5s
+        private static final long MAX_WINDOW_SIZE = 800000000; // 0.8s
+        private static final long MIN_WINDOW_SIZE = 300000000; // 0.3s
 
         /**
          * Ensure the queue size never falls below this size, even if the device

@@ -50,6 +50,13 @@ public class SharedPreferencesUtils {
         editor.apply();
     }
 
+    public synchronized void incrementDifficulty() {
+        int difficulty = getDifficulty();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(DIFFICULTY, ++difficulty);
+        editor.apply();
+    }
+
     public synchronized int getNextDifficultyAsStringId() {
         int currentDifficulty = mSharedPreferences.getInt(DIFFICULTY, DIFFICULTY_EASY);
         int nextDifficulty;

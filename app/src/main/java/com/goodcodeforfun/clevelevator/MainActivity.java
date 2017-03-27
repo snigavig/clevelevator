@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -172,8 +171,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void setupUI(boolean isSpinnerClick) {
-        Log.e("!!!!", String.valueOf(mSharedPreferencesUtils.getForcedDifficulty()));
-        Log.e("!!!!", String.valueOf(mSharedPreferencesUtils.getDifficulty()));
         if (mSharedPreferencesUtils.getForcedDifficulty() == FORCED_DIFFICULTY_NONE ||
                 mSharedPreferencesUtils.getForcedDifficulty() == mSharedPreferencesUtils.getDifficulty()) {
             showCurrentDifficultyContainer();
@@ -258,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
             if (SharedPreferencesUtils.getInstance(MainActivity.this).isShowingTask()
                     && mSharedPreferencesUtils.getForcedDifficulty() != mSharedPreferencesUtils.getDifficulty()) {
-                NotificationService.startActionShowEquation(getApplicationContext(), null);
+                NotificationService.startActionShowEquation(getApplicationContext());
             }
             setupUI(true);
         }
