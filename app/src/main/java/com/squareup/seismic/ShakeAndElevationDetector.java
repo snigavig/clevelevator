@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,10 +26,10 @@ import java.util.List;
  */
 public class ShakeAndElevationDetector implements SensorEventListener {
 
-    private static final int SENSITIVITY_ELEVATOR = 5; //needs tweaking
-    private static final int SENSITIVITY_SHAKE = 18;
-    private static final int ACCELERATING_X_POSITIVE = 0;
-    private static final int ACCELERATING_X_NEGATIVE = 1;
+    private static final int SENSITIVITY_ELEVATOR = 2; //needs tweaking
+    private static final int SENSITIVITY_SHAKE = 17;
+    private static final int ACCELERATING_X_NEGATIVE = 0;
+    private static final int ACCELERATING_X_POSITIVE = 1;
     private static final int ACCELERATING_Y_NEGATIVE = 2;
     private static final int ACCELERATING_Y_POSITIVE = 3;
     private static final int ACCELERATING_Z_NEGATIVE = 4;
@@ -44,11 +45,15 @@ public class ShakeAndElevationDetector implements SensorEventListener {
      */
     private final int accelerationThreshold = DEFAULT_ACCELERATION_THRESHOLD;
     private final int accelerationElevationThreshold = DEFAULT_ACCELERATION_ELEVATION_THRESHOLD;
-    private final double accelerationMinimalNegativeThreshold = -0.2d;
+    private final double accelerationMinimalNegativeThreshold = -0.3d;
     private final double accelerationMinimalPositiveThreshold = Math.abs(accelerationMinimalNegativeThreshold);
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private HighestAccelerationData highestAccelerationData = null;
+    private float gravityX;
+    private float gravityY;
+    private float gravityZ;
 
     public ShakeAndElevationDetector(Listener listener) {
         this.listener = listener;
@@ -65,8 +70,8 @@ public class ShakeAndElevationDetector implements SensorEventListener {
             return true;
         }
 
-        accelerometer = sensorManager.getDefaultSensor(
-                Sensor.TYPE_LINEAR_ACCELERATION);
+        //accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         // If this phone has an accelerometer, listen to it.
         if (accelerometer != null) {
@@ -92,13 +97,16 @@ public class ShakeAndElevationDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.values[0] < accelerationMinimalNegativeThreshold || event.values[0] > accelerationMinimalPositiveThreshold ||
-                event.values[1] < accelerationMinimalNegativeThreshold || event.values[1] > accelerationMinimalPositiveThreshold ||
-                event.values[2] < accelerationMinimalNegativeThreshold || event.values[2] > accelerationMinimalPositiveThreshold) {
+        //if (event.values[0] < accelerationMinimalNegativeThreshold || event.values[0] > accelerationMinimalPositiveThreshold ||
+        //        event.values[1] < accelerationMinimalNegativeThreshold || event.values[1] > accelerationMinimalPositiveThreshold ||
+        //        event.values[2] < accelerationMinimalNegativeThreshold || event.values[2] > accelerationMinimalPositiveThreshold) {
             boolean accelerating = isAccelerating(event);
-            int highestAccelerationAxis = getHighestAccelerationAxis(event);
+        if (accelerating) {
+            highestAccelerationData = getHighestAccelerationData(event);
+        }
             long timestamp = event.timestamp;
-            queue.add(timestamp, accelerating, highestAccelerationAxis);
+        queue.add(timestamp, accelerating, highestAccelerationData);
+        highestAccelerationData = null;
             if (queue.isShaking()) {
                 queue.clear();
                 listener.hearShake();
@@ -107,7 +115,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
                 queue.clear();
                 listener.hearElevation();
             }
-        }
+        //}
     }
 
     /**
@@ -128,45 +136,57 @@ public class ShakeAndElevationDetector implements SensorEventListener {
     /**
      * Returns true if the device is currently accelerating.
      */
-    private
-    @AccelerationDirection
-    int getHighestAccelerationAxis(SensorEvent event) {
-        float ax = event.values[0];
-        float ay = event.values[1];
-        float az = event.values[2];
+    private HighestAccelerationData getHighestAccelerationData(SensorEvent event) {
 
-        final double magnitudeSquaredX = ax * ax;
-        final double magnitudeSquaredY = ay * ay;
-        final double magnitudeSquaredZ = az * az;
-        final int threshold = accelerationElevationThreshold * accelerationElevationThreshold;
+        float accelerationLinearX;
+        float accelerationLinearY;
+        float accelerationLinearZ;
+        float accelerationX = event.values[0];
+        float accelerationY = event.values[1];
+        float accelerationZ = event.values[2];
+        final float alpha = 0.8f;
+
+        gravityX = alpha * gravityX + (1 - alpha) * accelerationX;
+        gravityY = alpha * gravityY + (1 - alpha) * accelerationY;
+        gravityZ = alpha * gravityZ + (1 - alpha) * accelerationZ;
+
+        accelerationLinearX = accelerationX - gravityX;
+        accelerationLinearY = accelerationY - gravityY;
+        accelerationLinearZ = accelerationZ - gravityZ;
+
+
+        final double magnitudeSquaredX = accelerationLinearX * accelerationLinearX;
+        final double magnitudeSquaredY = accelerationLinearY * accelerationLinearY;
+        final double magnitudeSquaredZ = accelerationLinearZ * accelerationLinearZ;
+        final double threshold = 0.4;
         double highestMagnitude = 0;
         int highestAccelerationAxisDirection = ACCELERATING_DEFAULT;
 
         if (magnitudeSquaredX > threshold && magnitudeSquaredX > highestMagnitude) {
             highestMagnitude = magnitudeSquaredX;
-            if (ax > 0) {
+            if (accelerationLinearX > 0) {
                 highestAccelerationAxisDirection = ACCELERATING_X_POSITIVE;
             } else {
                 highestAccelerationAxisDirection = ACCELERATING_X_NEGATIVE;
             }
         }
-        if (magnitudeSquaredY > highestMagnitude && magnitudeSquaredY > threshold) {
+        if (magnitudeSquaredY > threshold && magnitudeSquaredY > highestMagnitude) {
             highestMagnitude = magnitudeSquaredY;
-            if (ay > 0) {
+            if (accelerationLinearY > 0) {
                 highestAccelerationAxisDirection = ACCELERATING_Y_POSITIVE;
             } else {
                 highestAccelerationAxisDirection = ACCELERATING_Y_NEGATIVE;
             }
         }
-        if (magnitudeSquaredZ > highestMagnitude && magnitudeSquaredZ > threshold) {
-            if (az > 0) {
+        if (magnitudeSquaredZ > threshold && magnitudeSquaredZ > highestMagnitude) {
+            if (accelerationLinearZ > 0) {
                 highestAccelerationAxisDirection = ACCELERATING_Z_POSITIVE;
             } else {
                 highestAccelerationAxisDirection = ACCELERATING_Z_NEGATIVE;
             }
         }
 
-        return highestAccelerationAxisDirection;
+        return new HighestAccelerationData(highestAccelerationAxisDirection, highestMagnitude);
     }
 
     @Override
@@ -174,7 +194,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         //not relevant
     }
 
-    @IntDef({ACCELERATING_X_POSITIVE, ACCELERATING_X_NEGATIVE, ACCELERATING_Y_NEGATIVE, ACCELERATING_Y_POSITIVE, ACCELERATING_Z_NEGATIVE, ACCELERATING_Z_POSITIVE, ACCELERATING_DEFAULT})
+    @IntDef({ACCELERATING_X_NEGATIVE, ACCELERATING_X_POSITIVE, ACCELERATING_Y_NEGATIVE, ACCELERATING_Y_POSITIVE, ACCELERATING_Z_NEGATIVE, ACCELERATING_Z_POSITIVE, ACCELERATING_DEFAULT})
     @Retention(RetentionPolicy.SOURCE)
     private @interface AccelerationDirection {
     }
@@ -202,7 +222,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         /**
          * Window size in ns. Used to compute the average.
          */
-        private static final long MAX_WINDOW_SIZE = 800000000; // 0.8s
+        private static final long MAX_WINDOW_SIZE = 700000000; // 0.7s
         private static final long MIN_WINDOW_SIZE = 300000000; // 0.3s
 
         /**
@@ -210,7 +230,8 @@ public class ShakeAndElevationDetector implements SensorEventListener {
          * fails to deliver this many events during the time window. The LG Ally
          * is one such device.
          */
-        private static final int MIN_QUEUE_SIZE = 4;
+        private static final int MIN_QUEUE_SIZE = 10;
+        private static final int NEWEST_DATA_SIZE = 10;
 
         private final SamplePool pool = new SamplePool();
 
@@ -225,7 +246,7 @@ public class ShakeAndElevationDetector implements SensorEventListener {
          * @param timestamp    in nanoseconds of sample
          * @param accelerating true if > {@link #accelerationThreshold}.
          */
-        void add(long timestamp, boolean accelerating, @AccelerationDirection int accelerationDirection) {
+        void add(long timestamp, boolean accelerating, @Nullable HighestAccelerationData highestAccelerationData) {
             // Purge samples that proceed window.
             purge(timestamp - MAX_WINDOW_SIZE);
 
@@ -233,7 +254,13 @@ public class ShakeAndElevationDetector implements SensorEventListener {
             Sample added = pool.acquire();
             added.timestamp = timestamp;
             added.accelerating = accelerating;
-            added.accelerationDirection = accelerationDirection;
+            if (null != highestAccelerationData) {
+                added.accelerationDirection = highestAccelerationData.getHighestAccelerationAxisDirection();
+                added.highestAccelerationValue = highestAccelerationData.getHighestAccelerationValue();
+            } else {
+                added.accelerationDirection = ACCELERATING_DEFAULT;
+                added.highestAccelerationValue = 0.0d;
+            }
             added.next = null;
             if (newest != null) {
                 newest.next = added;
@@ -315,24 +342,78 @@ public class ShakeAndElevationDetector implements SensorEventListener {
          */
         boolean isElevating() {
             List<Sample> currentQueue = asList();
+            int queueSize = currentQueue.size();
             int acceleratingSingleAxisCount = 0;
             int[] acceleratingCountArray = {0, 0, 0, 0, 0, 0};
-            for (Sample sample : currentQueue) {
-                if (sample.accelerationDirection != ACCELERATING_DEFAULT) {
-                    acceleratingCountArray[sample.accelerationDirection]++;
+            if (queueSize > MIN_QUEUE_SIZE) {
+                int sampleCountTillSnapshot = queueSize - NEWEST_DATA_SIZE;
+                int snapshotCurrentRow = 0;
+                double[][] newestValuesSnapshot = new double[6][NEWEST_DATA_SIZE];
+                for (Sample sample : currentQueue) {
+                    if (sample.accelerationDirection != ACCELERATING_DEFAULT) {
+                        acceleratingCountArray[sample.accelerationDirection]++;
+                        if (sampleCountTillSnapshot == 0) {
+                            newestValuesSnapshot[sample.accelerationDirection][snapshotCurrentRow] = sample.highestAccelerationValue;
+                            snapshotCurrentRow++;
+                        } else {
+                            sampleCountTillSnapshot--;
+                        }
+                    }
+                }
+
+                @AccelerationDirection int mostAcceleratingAxisDirection = ACCELERATING_DEFAULT;
+                for (int anAcceleratingCountArray : acceleratingCountArray) {
+                    if (anAcceleratingCountArray > acceleratingSingleAxisCount) {
+                        acceleratingSingleAxisCount = anAcceleratingCountArray;
+                    }
+                }
+
+                mostAcceleratingAxisDirection = indexOfIntArray(acceleratingCountArray, acceleratingSingleAxisCount);
+
+                boolean isActuallyAnElevator = false;
+                if (newest != null
+                        && oldest != null
+                        && newest.timestamp - oldest.timestamp >= MIN_WINDOW_SIZE
+                        && acceleratingSingleAxisCount >= (queueSize >> 1) + (queueSize >> 2)
+                        && mostAcceleratingAxisDirection != ACCELERATING_DEFAULT) {
+                    if (isConstantlyAccelerating(newestValuesSnapshot[mostAcceleratingAxisDirection])) {
+                        isActuallyAnElevator = true;
+                    }
+                }
+                return isActuallyAnElevator;
+            }
+            return false;
+        }
+
+        @AccelerationDirection
+        int indexOfIntArray(int[] array, int value) {
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] == value) {
+                    //noinspection WrongConstant
+                    return i;
+                }
+            }
+            return ACCELERATING_DEFAULT;
+        }
+
+        private boolean isConstantlyAccelerating(double[] dataSnapshotRow) {
+            int dataSnapshotSize = dataSnapshotRow.length;
+            double accelerationSum = 0.0d;
+            for (double accelerationValue : dataSnapshotRow) {
+                accelerationSum += accelerationValue;
+            }
+            double averageAcceleration = accelerationSum / dataSnapshotSize;
+            double averageAccelerationThreshold = averageAcceleration * 0.15;
+            double maxAcceptedAcceleration = averageAcceleration + averageAccelerationThreshold;
+            double minAcceptedAcceleration = averageAcceleration - averageAccelerationThreshold;
+            int acceptedDataCount = 0;
+            for (double accelerationValue : dataSnapshotRow) {
+                if (accelerationValue < maxAcceptedAcceleration && accelerationValue > minAcceptedAcceleration) {
+                    acceptedDataCount++;
                 }
             }
 
-            for (int anAcceleratingCountArray : acceleratingCountArray) {
-                if (anAcceleratingCountArray > acceleratingSingleAxisCount) {
-                    acceleratingSingleAxisCount = anAcceleratingCountArray;
-                }
-            }
-
-            return newest != null
-                    && oldest != null
-                    && newest.timestamp - oldest.timestamp >= MIN_WINDOW_SIZE
-                    && acceleratingSingleAxisCount >= sampleCount * 0.85f;
+            return acceptedDataCount >= (dataSnapshotSize >> 1) + (dataSnapshotSize >> 2);
         }
     }
 
@@ -355,6 +436,11 @@ public class ShakeAndElevationDetector implements SensorEventListener {
          */
         @AccelerationDirection
         int accelerationDirection;
+
+        /**
+         * Acceleration highest value
+         */
+        double highestAccelerationValue;
 
         /**
          * Next sample in the queue or pool.
@@ -388,6 +474,25 @@ public class ShakeAndElevationDetector implements SensorEventListener {
         void release(Sample sample) {
             sample.next = head;
             head = sample;
+        }
+    }
+
+    private class HighestAccelerationData {
+        @AccelerationDirection
+        int highestAccelerationAxisDirection;
+        double highestAccelerationValue;
+
+        HighestAccelerationData(int highestAccelerationAxisDirection, double highestAccelerationValue) {
+            this.highestAccelerationAxisDirection = highestAccelerationAxisDirection;
+            this.highestAccelerationValue = highestAccelerationValue;
+        }
+
+        public int getHighestAccelerationAxisDirection() {
+            return highestAccelerationAxisDirection;
+        }
+
+        public double getHighestAccelerationValue() {
+            return highestAccelerationValue;
         }
     }
 }

@@ -13,8 +13,10 @@ public class DetectionAppWidgetStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (SET_IS_DETECTION_ON_ACTION.equals(intent.getAction())) {
             SharedPreferencesUtils.getInstance(context).setIsDetectionOn(true);
+            MotionDetectionService.startMotionDetection(context);
         } else {
             SharedPreferencesUtils.getInstance(context).setIsDetectionOn(false);
+            MotionDetectionService.stopMotionDetection(context);
         }
         DetectionAppWidget.updateWidget(context.getApplicationContext());
     }

@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Clevelevator</string>
     <string name="difficulty_label">Difficulty:</string>
-    <string name="detection_switch">Turn detection on/off</string>
-    <string name="vibration_switch">Turn vibration on/off</string>
-    <string name="sound_switch">Turn sound on/off</string>
+    <string name="detection_switch">Motion detection</string>
+    <string name="vibration_switch">Notification vibration</string>
+    <string name="sound_switch">Notification sound</string>
     <string name="difficulty_easy">Easy</string>
     <string name="difficulty_medium">Medium</string>
     <string name="difficulty_hard">Hard</string>

@@ -14,5 +14,4 @@
     <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
-
 </resources>
